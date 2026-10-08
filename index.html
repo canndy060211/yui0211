@@ -591,46 +591,40 @@ async function uploadFile(file) {
 
     const dotIndex = safeName.lastIndexOf(".");
 
-    let finalName;
+   let finalName;
 
-    if (dotIndex > 0) {
-        const name = safeName.slice(0, dotIndex);
-        const ext = safeName.slice(dotIndex);
-
-       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
 let randomId = '';
+
 for (let i = 0; i < 6; i++) {
     randomId += chars.charAt(Math.floor(Math.random() * chars.length));
 }
 
-if (ext) {
-    finalName = `${randomId}${ext}`;
-} else {
-    finalName = randomId;
+const ext = dotIndex > 0 ? safeName.slice(dotIndex) : '';
+
+finalName = `${randomId}${ext}`;
+
+const url = `${API_BASE}/${encodeURIComponent(finalName)}`;
+
+const response = await fetch(url, {
+    method: "PUT",
+    headers: getHeaders(),
+    body: JSON.stringify({
+        message: `upload: ${finalName}`,
+        content: content,
+        branch: GITHUB_BRANCH
+    })
+});
+
+if (!response.ok) {
+    const data = await response.json().catch(() => ({}));
+
+    throw new Error(
+        data.message || `HTTP ${response.status}`
+    );
 }
 
-    const url = `${API_BASE}/${encodeURIComponent(finalName)}`;
-
-    const response = await fetch(url, {
-        method: "PUT",
-        headers: getHeaders(),
-        body: JSON.stringify({
-            message: `upload: ${finalName}`,
-            content: content,
-            branch: GITHUB_BRANCH
-        })
-    });
-
-    if (!response.ok) {
-        const data = await response.json().catch(() => ({}));
-
-        throw new Error(
-            data.message || `HTTP ${response.status}`
-        );
-    }
-
-    showToast("上传成功 ♡");
-}
+showToast("上传成功 ♡");
 
 
 function fileToBase64(file) {
