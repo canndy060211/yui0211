@@ -597,12 +597,17 @@ async function uploadFile(file) {
         const name = safeName.slice(0, dotIndex);
         const ext = safeName.slice(dotIndex);
 
-        finalName =
-            `${name}_${Date.now()}${ext}`;
-    } else {
-        finalName =
-            `${safeName}_${Date.now()}`;
-    }
+       const chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
+let randomId = '';
+for (let i = 0; i < 6; i++) {
+    randomId += chars.charAt(Math.floor(Math.random() * chars.length));
+}
+
+if (ext) {
+    finalName = `${randomId}${ext}`;
+} else {
+    finalName = randomId;
+}
 
     const url = `${API_BASE}/${encodeURIComponent(finalName)}`;
 
